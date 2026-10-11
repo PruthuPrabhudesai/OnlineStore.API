@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OnlineStore.API.Data;
-using OnlineStore.API.Repositories;
 using OnlineStore.API.Middleware;
+using OnlineStore.API.Repositories;
+using System.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,7 +33,7 @@ builder.Services.AddDbContext<StoreAuthDbContext>(options =>
 
 var app = builder.Build();
 
-// Middleware to handle global exceptions
+// First Middleware to handle global exceptions
 app.UseMiddleware<GlobalExceptionMiddleware>();
 
 if (app.Environment.IsDevelopment())
@@ -40,6 +41,36 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+// Second Inline Request logging middleware
+app.Use(async (HttpContext context, Func<Task> next) =>
+{
+    // 1. Start measuring the request duration
+    var stopwatch = Stopwatch.StartNew();
+
+    // 2. Get the HTTP method and request path
+    var method = context.Request.Method;
+    var path = context.Request.Path;
+
+    try
+    {
+        // 3. Pass the request to the next middleware
+        await next();
+    }
+    finally
+    {
+        // 4. Stop the timer after request processing
+        stopwatch.Stop();
+
+        // 5. Get the final response status code
+        var statusCode = context.Response.StatusCode;
+
+        // 6. Log the request details
+        Console.WriteLine(
+            $"{method} {path} -> {statusCode} -> {stopwatch.ElapsedMilliseconds} ms");
+    }
+});
+
 
 
 // Configure the HTTP request pipeline.
