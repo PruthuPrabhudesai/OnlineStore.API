@@ -1,0 +1,22 @@
+﻿1. Global exception-handling middleware
+
+Start here
+If your product service throws an exception, handle it centrally instead of writing repetitive try-catch blocks in every controller.
+
+Example: return a consistent 500 Internal Server Error response.
+
+2. Request logging middleware
+
+Log the HTTP method, path, status code, and request duration.
+
+Example: GET /api/products → 200 → 35 ms.
+
+3. Authentication and authorization middleware
+
+Protect customer profiles, order history, and admin-only product management endpoints.
+
+ASP.NET Core already provides built-in authentication and authorization middleware, so you generally configure these instead of reinventing them.
+
+4. Request timing or correlation ID middleware
+
+Measure how long requests take, or attach a unique ID to each request to help trace problems across logs.
